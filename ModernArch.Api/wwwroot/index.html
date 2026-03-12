@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的待辦事項</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 8px; }
+        button { padding: 8px 16px; cursor: pointer; }
+        ul { list-style: none; padding: 0; }
+        li { background: #f4f4f4; margin: 5px 0; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 完成項目的樣式 */
+        .completed-text { text-decoration: line-through; color: #888; }
+        .todo-content { display: flex; align-items: center; gap: 10px; }
+    </style>
+</head>
+<body>
+    <h1>我的待辦事項 (API 串接版)</h1>
+    
+    <div class="input-group">
+        <input type="text" id="todoInput" placeholder="輸入待辦事項...">
+        <button onclick="addTodo()">新增</button>
+    </div>
+
+    <ul id="todoList">
+        <!-- 這裡會動態插入資料 -->
+    </ul>
+
+    <script>
+        // ★★★ 請確認這個 Port (7076) 跟你的後端黑色視窗顯示的一模一樣 ★★★
+       // const API_BASE_URL = 'https://localhost:7076/api/Todo';
+        // 改成這樣 (相對路徑)：
+        const API_BASE_URL = '/api/Todo'; 
+
+        // 1. 載入時取得資料
+        async function fetchTodos() {
+            try {
+                const response = await fetch(API_BASE_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const todos = await response.json();
+                renderTodos(todos);
+            } catch (error) {
+                console.error('錯誤:', error);
+                alert('無法連接 API，請確認：\n1. 後端黑色視窗有開著嗎？\n2. Port 號是 7076 嗎？');
+            }
+        }
+
+        // 2. 渲染畫面 (修改：加入 Checkbox)
+        function renderTodos(todos) {
+            const list = document.getElementById('todoList');
+            list.innerHTML = ''; // 清空舊資料
+            
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                
+                // 判斷是否完成，決定文字樣式
+                const textStyle = todo.isCompleted ? 'completed-text' : '';
+                const checkedAttribute = todo.isCompleted ? 'checked' : '';
+
+                // 注意：這裡使用了 onchange 來觸發更新
+                li.innerHTML = `
+                    <div class="todo-content">
+                        <input type="checkbox" 
+                               ${checkedAttribute} 
+                               onchange="toggleTodo(${todo.id}, '${todo.title}', this.checked)">
+                        <span class="${textStyle}">${todo.title}</span>
+                    </div>
+                    <button onclick="deleteTodo(${todo.id})">刪除</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // 3. 新增資料
+        async function addTodo() {
+            const input = document.getElementById('todoInput');
+            const title = input.value.trim();
+            if (!title) return alert("請輸入內容！");
+
+            const newTodo = { title: title, isCompleted: false };
+
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newTodo)
+                });
+
+                if (response.ok) {
+                    input.value = ''; // 清空輸入框
+                    fetchTodos();     // 重新載入列表
+                } else {
+                    alert("新增失敗");
+                }
+            } catch (error) {
+                console.error("新增錯誤:", error);
+            }
+        }
+
+        // 4. 刪除資料
+        async function deleteTodo(id) {
+            if(!confirm('確定刪除嗎？')) return;
+            
+            try {
+                await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                fetchTodos();
+            } catch (error) {
+                console.error("刪除錯誤:", error);
+            }
+        }
+
+        // 5. 切換完成狀態 (關鍵修改：呼叫 PUT)
+        async function toggleTodo(id, title, isChecked) {
+            // 準備要傳給後端的資料 (必須包含 Id, Title, IsCompleted)
+            const updatedTodo = { 
+                id: id, 
+                title: title, 
+                isCompleted: isChecked 
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedTodo)
+                });
+
+                if (response.ok) {
+                    fetchTodos(); // 更新成功後，重新整理畫面確保同步
+                } else {
+                    alert("更新狀態失敗");
+                    fetchTodos(); // 失敗的話也要重整，把勾勾跳回來
+                }
+            } catch (error) {
+                console.error("更新錯誤:", error);
+            }
+        }
+
+        // 頁面載入後執行
+        fetchTodos();
+    </script>
+</body>
+</html>

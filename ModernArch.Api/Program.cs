@@ -77,6 +77,10 @@ app.UseHttpsRedirection();
 // 檢查這個人有沒有權限看這個頁面。(注意：這裡還沒執行 Controller 喔！)
 app.UseAuthorization();
 
+
+// ★★★ 加入這兩行 ★★★
+app.UseDefaultFiles(); // 1. 讓網址不用打 index.html 也能自動找到它
+app.UseStaticFiles();  // 2. 開放 wwwroot 資料夾裡的檔案讓外部存取
 // 9. 對應控制器。
 // 系統會去掃描你所有的 Controller，根據 [Route] 設定，決定這個 Request 該去哪裡。
 // 就像大樓的管理員，看你的門牌號碼把你指引到正確的房間。
