@@ -7,6 +7,18 @@ using ModernArch.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- 為 Codespaces 和容器環境配置端口 ---
+// 檢查是否在 Codespaces 或容器環境中運行
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var isCodespaces = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CODESPACES"));
+
+if (isCodespaces || Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    // 在 Codespaces 或容器中，監聽所有網路介面的指定端口
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+// ---------------------------------------
+
 // --- 加入這段 CORS 設定 ---
 builder.Services.AddCors(options =>
 {

@@ -1,0 +1,36 @@
+{
+  "name": "ModernArch .NET 8 Development",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "8.0",
+      "installUsingApt": false
+    }
+  },
+  
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "ModernArch API",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  
+  "postCreateCommand": "cd ModernArch.Api && dotnet restore && dotnet ef database update",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.vscode-dotnet-runtime"
+      ]
+    }
+  },
+  
+  "remoteEnv": {
+    "ASPNETCORE_ENVIRONMENT": "Development",
+    "PORT": "8080"
+  }
+}
