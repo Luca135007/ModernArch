@@ -30,9 +30,15 @@
     </ul>
 
     <script>
+        // 動態構建 API URL，支援本地開發和 GitHub Codespaces
+        function getApiBaseUrl() {
+            // 在 Codespaces 中，前端和後端在同一個域名下，使用相對路徑即可
+            // 在本地開發中，也使用相對路徑（因為前端由後端的 wwwroot 提供）
+            return '/api/Todo';
+        }
 
-        // 改成這樣 (相對路徑)：
-        const API_BASE_URL = '/api/Todo'; 
+        const API_BASE_URL = getApiBaseUrl(); 
+        console.log('API Base URL:', API_BASE_URL); // 方便除錯
 
         // 1. 載入時取得資料
         async function fetchTodos() {
@@ -45,7 +51,9 @@
                 renderTodos(todos);
             } catch (error) {
                 console.error('錯誤:', error);
-                alert('無法連接 API，請確認：\n1. 後端黑色視窗有開著嗎？\n2. Port 號是 7076 嗎？');
+                console.error('當前 URL:', window.location.href);
+                console.error('API URL:', API_BASE_URL);
+                alert('無法連接 API，請確認：\n1. 後端服務有在運行嗎？\n2. 請檢查瀏覽器控制台 (F12) 查看詳細錯誤訊息');
             }
         }
 

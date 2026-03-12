@@ -27,11 +27,11 @@ builder.Services.AddCors(options =>
 // 你在這裡註冊的任何東西，之後都可以在任何 Class 的建構子裡「討」來用。
 
 
-// --- 加入這段 ---
+// --- 修改這段：改用 SQLite ---
 // 註冊 DbContext
-// 告訴系統：我們要用 SQL Server，連線字串從 appsettings.json 裡的 DefaultConnection 拿
+// 使用 SQLite，跨平台支援（Windows、Linux、macOS、Codespaces）
 builder.Services.AddDbContext<TodoContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 // ----------------
 
 // 2. 告訴系統：「我要用 Controller 的方式來寫 API」。
@@ -70,7 +70,13 @@ app.UseCors("AllowAll"); // 啟用 CORS 策略
 
 // 7. 強制轉址 HTTPS。
 // 如果有人用 http:// 連進來，自動把他踢去 https://。
-app.UseHttpsRedirection();
+// 在 Codespaces 或容器環境中，可能不需要這個（因為反向代理已處理）
+// 可以透過環境變數控制是否啟用
+if (!app.Environment.IsDevelopment() || 
+    builder.Configuration.GetValue<bool>("UseHttpsRedirection", true))
+{
+    app.UseHttpsRedirection();
+}
 
 
 // 8. 授權檢查。
