@@ -64,6 +64,13 @@ builder.Services.AddSwaggerGen();
 // 這一行之後，就不能再註冊 Service 了 (builder.Services... 無效)。
 var app = builder.Build();
 
+// 自動套用資料庫 Migration（確保資料表存在）
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<TodoContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 
 // 5. 判斷環境：如果是 "開發環境 (Development)"...
