@@ -1,0 +1,20 @@
+name: CI 測試與打包
+
+# 觸發條件：當有人把程式碼推送到 main 分支時，就會啟動這個流程
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    # 告訴 GitHub：請給我一台最新版的 Ubuntu Linux 虛擬機來跑這些任務
+    runs-on: ubuntu-latest
+
+    steps:
+    # 步驟 1：把你的程式碼從倉庫裡拉到這台虛擬機上
+    - name: 取得原始碼
+      uses: actions/checkout@v4
+
+    # 步驟 2：執行我們剛剛手打過的 Docker 打包指令
+    - name: 測試建立 Docker 映像檔
+      run: docker build -t modern-arch-api .
