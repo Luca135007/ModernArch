@@ -15,6 +15,7 @@ jobs:
     - name: 取得原始碼
       uses: actions/checkout@v4
 
-    # 步驟 2：執行我們剛剛手打過的 Docker 打包指令
+# 步驟 2：執行我們剛剛手打過的 Docker 打包指令
     - name: 測試建立 Docker 映像檔
+      working-directory: ./ModernArch.Api   # 加上這一行，告訴機器人工作目錄在哪裡
       run: docker build -t modern-arch-api .
