@@ -3,7 +3,7 @@ name: CI 測試與打包
 # 觸發條件：當有人把程式碼推送到 main 分支時，就會啟動這個流程
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
